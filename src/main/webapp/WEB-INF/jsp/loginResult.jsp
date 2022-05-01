@@ -3,7 +3,7 @@
 <%@ page import="model.User" %>
 
 <%	//セッションスコープからユーザー情報を取得
-	User loginUser = (User) session.getAttribute("LoginUser");
+	User loginUser = (User) session.getAttribute("loginUser");
 
 %>
 
@@ -17,13 +17,14 @@
 	<h1>ログイン結果</h1>
 	<% if(loginUser != null) {%>
 	<p>ログインに成功しました　おめでとう！</p>
+	<p>ようこそ<%= loginUser.getName() %>さん</p>
+	<p>つぶやきの世界へ！</p>
+	<a href="/tsubuyaki/Main">つぶやき投稿・閲覧へ</a>
 	<% }else{%>
 	<p>ログインに失敗しました</p>
+	<a href="/tsubuyaki/index.jsp">ログイン画面へ</a>
 	<% } %>
 	
-	<a href="/tsubuyaki/index.jsp">ログイン画面へ</a>
-	
-	<% session.invalidate(); %>
-	
+
 </body>
 </html>
