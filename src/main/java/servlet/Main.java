@@ -14,6 +14,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import model.Mutter;
+import model.PostMutterLogic;
 import model.User;
 
 
@@ -25,18 +26,18 @@ public class Main extends HttpServlet {
 	private static final long serialVersionUID = 1L;
        
  	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		// 次屋キリストをアプリケーションスコープから取得
+		// つぶやきリストをアプリケーションスコープから取得
 		ServletContext application = this.getServletContext();
 		List<Mutter> mutterList = (List<Mutter>) application.getAttribute("mutterList");
 		
 		//取得できなあった場合は、つぶやきリストを新規作成してアプリケーションに保存
 		if(mutterList == null) {
 			mutterList = new ArrayList<>();
-			application.setAttribute("muttterList", mutterList);
+			application.setAttribute("mutterList", mutterList);
 		}
 		
 		
-		//ログインしちえるか確認するためセッションスコープからユーザー情報を取得
+		//ログインしているか確認するためセッションスコープからユーザー情報を取得
 		HttpSession session = request.getSession();
 		User loginUser = (User) session.getAttribute("loginUser");
 		
@@ -51,12 +52,41 @@ public class Main extends HttpServlet {
 			
 	}
 
-	/**
-	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
-	 */
-//	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		// TODO Auto-generated method stub
-//		doGet(request, response);
-//	}
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		//アプリケーションスコープからmutterListを取得る。
+		ServletContext application = this.getServletContext();
+		List<Mutter> mutterList = (List<Mutter>) application.getAttribute("mutterList");
+		
+		//追加するテキストの取得
+		request.setCharacterEncoding("UTF-8");
+		String text = request.getParameter("text");
+						
+		//テキストが空白の場合はメイン画面へ戻す
+		if(text == null || text.length() == 0) {
+			request.setAttribute("errorMsg","つぶやきが設定されていません");
+		
+		} else { //テキストに値がある場合
+		
+			//名前をセッションスコープから取得
+			HttpSession session = request.getSession();
+			User loginUser = (User) session.getAttribute("loginUser");
+		
+			//追加するつぶやきクラスを作成
+			Mutter mutter = new Mutter(loginUser.getName(),text);
+			
+			//つぶやきをMutterListへ追加する
+			PostMutterLogic postMutterLogic = new PostMutterLogic();
+			postMutterLogic.excute(mutter, mutterList);
+			
+			//MutterListをアプリケーソンスコープへ保存
+			application.setAttribute("mutterList",mutterList);
+			
+		}
+
+		//メイン画面へフォワード
+		RequestDispatcher dispatcher = request.getRequestDispatcher("WEB-INF/jsp/main.jsp");
+		dispatcher.forward(request, response);
+
+	}
 
 }
