@@ -1,15 +1,20 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
-<%@ page import="model.User,model.Mutter,java.util.List" %>
+<%@ page import="model.User,model.Mutter,java.util.List,java.sql.Timestamp,java.text.SimpleDateFormat" %>
 <%
 //セッションスコープからユーザー情報を取得
 User loginUser = (User) session.getAttribute("loginUser");
 %>
 <%
-//アプリケーションスコープからつぶやき情報を取得
-List<Mutter> mutterList = (List<Mutter>) application.getAttribute("mutterList") ; 
+//リクエストスコープからつぶやき情報を取得
+List<Mutter> mutterList = (List<Mutter>) request.getAttribute("mutterList") ; 
 %>
-    
+   
+<%
+//日時のフォーマット変更のための準備
+SimpleDateFormat sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+%>   
+   
 <!DOCTYPE html>
 <html>
 <head>
@@ -34,7 +39,7 @@ List<Mutter> mutterList = (List<Mutter>) application.getAttribute("mutterList") 
 	<p><%= request.getAttribute("errorMsg") %></p><br>
 <% } %>
 <% for(Mutter mutter : mutterList){ %>
-	<p><%= mutter.getUserName() %>：<%= mutter.getText() %></p>
+	<p><%= mutter.getUserName() %>：<%= mutter.getText() %>：<%= sdf.format(mutter.getDate()) %></p>
 <% } %>
 </body>
 </html>
